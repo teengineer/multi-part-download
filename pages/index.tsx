@@ -104,8 +104,8 @@ export default function Home() {
     console.log("sendString", sendString);
     try {
       const response = await axios.post(
-        "http://localhost:5000/multipart/upload",
-        // "http://b3api-env.eba-8dhb66kv.eu-west-1.elasticbeanstalk.com/multipart/upload",
+        // "http://localhost:5000/multipart/upload",
+        "http://b3api-env.eba-8dhb66kv.eu-west-1.elasticbeanstalk.com/multipart/upload",
         {
           AccountId: "6420340315",
           BucketName: "abdullah.example",
@@ -153,8 +153,8 @@ export default function Home() {
     try {
       axios
         .post(
-          "http://localhost:5000/multipart/initiate",
-          // "http://b3api-env.eba-8dhb66kv.eu-west-1.elasticbeanstalk.com/multipart/initiate",
+          // "http://localhost:5000/multipart/initiate",
+          "http://b3api-env.eba-8dhb66kv.eu-west-1.elasticbeanstalk.com/multipart/initiate",
           {
             AccountId: "6420340315",
             BucketName: "abdullah.example",
