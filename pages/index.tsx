@@ -86,7 +86,7 @@ export default function Home() {
     try {
       // const response = await axios.post("http://localhost:5000/user/login", {
       const response = await axios.post(
-        "https://b3api-env.eba-8dhb66kv.eu-west-1.elasticbeanstalk.com/user/login",
+        "https://b3-api.bulutix.com/user/login",
         {
           accountId: "6420340315",
           username: "firdevs@entegreyazilim.com.tr",
@@ -105,7 +105,7 @@ export default function Home() {
     try {
       const response = await axios.post(
         // "http://localhost:5000/multipart/upload",
-        "https://b3api-env.eba-8dhb66kv.eu-west-1.elasticbeanstalk.com/multipart/upload",
+        "https://b3-api.bulutix.com/multipart/upload",
         {
           AccountId: "6420340315",
           BucketName: "abdullah.example",
@@ -154,7 +154,7 @@ export default function Home() {
       axios
         .post(
           // "http://localhost:5000/multipart/initiate",
-          "https://b3api-env.eba-8dhb66kv.eu-west-1.elasticbeanstalk.com/multipart/initiate",
+          "https://b3-api.bulutix.com/multipart/initiate",
           {
             AccountId: "6420340315",
             BucketName: "abdullah.example",
@@ -185,7 +185,7 @@ export default function Home() {
 
     const response = await axios.post(
       // "http://localhost:5000/multipart/complete",
-      "https://b3api-env.eba-8dhb66kv.eu-west-1.elasticbeanstalk.com/multipart/complete",
+      "https://b3-api.bulutix.com/multipart/complete",
       {
         AccountId: "6420340315",
         ObjectName: fileName,
