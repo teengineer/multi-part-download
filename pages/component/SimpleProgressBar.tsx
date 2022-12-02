@@ -5,7 +5,7 @@ const SimpleProgressBar = ({ progress = 0 }: { progress?: number }) => {
             <div className="" style={{ width: '100%', border: '1px solid #4caf50' }}>
                 <div
                     style={{
-                        width: `${progress * 2}%`,
+                        width: `${progress * 3}%`,
                         height: "20px",
                         backgroundColor: "#4caf50",
                         border: "1px solid #4caf50",
@@ -19,6 +19,7 @@ const SimpleProgressBar = ({ progress = 0 }: { progress?: number }) => {
         </div>
     );
 };
+
 
 export default SimpleProgressBar;
 
