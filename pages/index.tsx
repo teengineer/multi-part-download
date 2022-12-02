@@ -26,10 +26,10 @@ export default function Home() {
   // );
 
   useEffect(() => {
+    // login();
     if (fileSize > 0) {
-      fileUpload(counter);
+      fileUpload();
     }
-    console.log("progress", progress);
   }, [uploadIdd, progress]);
 
   useEffect(() => {
@@ -39,9 +39,9 @@ export default function Home() {
   const getFileContext = (e) => {
     resetChunkProperties();
     const _file = e.target.files[0];
+    console.log("**********************************", _file);
     setFileSize(_file.size);
     setFileName(_file.name);
-    console.log("File size: ", _file.size);
 
     const _totalCount =
       _file.size % chunkSize === 0
@@ -64,12 +64,18 @@ export default function Home() {
       reader.onerror = (error) => reject(error);
     });
 
-  const fileUpload = async (counter) => {
+  const fileUpload = async () => {
     setCounter(counter + 1);
     if (counter <= chunkCount) {
       console.log("start", beginingOfTheChunk, "end", endOfTheChunk);
       var chunk = fileToBeUpload.slice(beginingOfTheChunk, endOfTheChunk);
       console.log("chunk", chunk);
+      // var reader = new FileReader();
+      // reader.readAsDataURL(chunk);
+      // reader.onloadend = function async() {
+      //   setBase64(reader.result);
+      //   uploadChunk(reader.result);
+      // };
       var content = await blobToBase64(chunk);
       console.log("content", content);
       uploadChunk(content);
@@ -85,8 +91,7 @@ export default function Home() {
           accountId: "6420340315",
           username: "firdevs@entegreyazilim.com.tr",
           password: "14533541",
-        }
-      );
+        });
       console.log("response", response);
       setToken(response.data.token);
     } catch (err) {
@@ -99,8 +104,8 @@ export default function Home() {
     console.log("sendString", sendString);
     try {
       const response = await axios.post(
-        // "http://localhost:5000/multipart/upload",
-        "http://b3api-env.eba-8dhb66kv.eu-west-1.elasticbeanstalk.com/multipart/upload",
+        "http://localhost:5000/multipart/upload",
+        // "http://b3api-env.eba-8dhb66kv.eu-west-1.elasticbeanstalk.com/multipart/upload",
         {
           AccountId: "6420340315",
           BucketName: "abdullah.example",
@@ -148,8 +153,8 @@ export default function Home() {
     try {
       axios
         .post(
-          // "http://localhost:5000/multipart/initiate",
-          "http://b3api-env.eba-8dhb66kv.eu-west-1.elasticbeanstalk.com/multipart/initiate",
+          "http://localhost:5000/multipart/initiate",
+          // "http://b3api-env.eba-8dhb66kv.eu-west-1.elasticbeanstalk.com/multipart/initiate",
           {
             AccountId: "6420340315",
             BucketName: "abdullah.example",
