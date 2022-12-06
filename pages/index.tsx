@@ -5,6 +5,7 @@ import React, { useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import axios from "axios";
 import SimpleProgressBar from "./component/SimpleProgressBar";
+import { read } from "fs";
 export default function Home() {
   const chunkSize = 5 * 1024 * 1024;
   const [showProgress, setShowProgress] = useState(false);
@@ -20,13 +21,10 @@ export default function Home() {
   const [uploadIdd, setUploadId] = useState("");
   const [token, setToken] = useState("");
   const [fileName, setFileName] = useState("");
-
-  // const progressInstance = (
-  //   <simpProgBar simpProgBar progress={progress} />
-  // );
+  // filereader declare global
+  // let [reader, setFileReader] = useState(null);
 
   useEffect(() => {
-    // login();
     if (fileSize > 0) {
       fileUpload();
     }
@@ -34,12 +32,13 @@ export default function Home() {
 
   useEffect(() => {
     login();
+    // setFileReader(new FileReader());
+    // console.log("reader baslatildi");
   }, []);
 
   const getFileContext = (e) => {
     resetChunkProperties();
     const _file = e.target.files[0];
-    console.log("**********************************", _file);
     setFileSize(_file.size);
     setFileName(_file.name);
 
@@ -48,64 +47,69 @@ export default function Home() {
         ? _file.size / chunkSize
         : Math.floor(_file.size / chunkSize) + 1; // Total count of chunks will have been upload to finish the file
     setChunkCount(_totalCount);
-    console.log("Total Count: ", _totalCount);
+    console.log(`Bu dosya ${_totalCount} parçaya ayrılmıştır.`);
     setFileToBeUpload(_file);
     const _fileID = uuidv4() + "." + _file.name.split(".").pop();
     setFileGuid(_fileID);
-    console.log("fileNmae", fileName);
     uploadStarted(_file.name);
   };
 
-  const blobToBase64 = (blob) =>
+  // let reader = new window.FileReader()
+
+  const blobToBase64 = async (blob) =>
     new Promise((resolve, reject) => {
-      const reader = new FileReader();
+      console.log(`Chunk ${counter} icin reader baslatildi`);
+      let reader = new FileReader();
       reader.readAsDataURL(blob);
       reader.onload = () => resolve(reader.result);
-      reader.onerror = (error) => reject(error);
+
+      // memory free
+      reader.onloadend = () => {
+        console.log("reader iptal edildi");
+        // reader = null;
+        reader.removeEventListener("loadend", () => { });
+
+        console.log(`Chunk ${counter} icin reader iptal edildi`);
+      };
+      // reader.onerror = (error) => reject(error);/
+
+      //memory leak
+      // reader.onabort = () => reject("aborted");
+
     });
+
 
   const fileUpload = async () => {
     setCounter(counter + 1);
+    console.log(`Chunk ${counter} başladı.`);
     if (counter <= chunkCount) {
-      console.log("start", beginingOfTheChunk, "end", endOfTheChunk);
       var chunk = fileToBeUpload.slice(beginingOfTheChunk, endOfTheChunk);
-      console.log("chunk", chunk);
-      // var reader = new FileReader();
-      // reader.readAsDataURL(chunk);
-      // reader.onloadend = function async() {
-      //   setBase64(reader.result);
-      //   uploadChunk(reader.result);
-      // };
       var content = await blobToBase64(chunk);
-      console.log("content", content);
       uploadChunk(content);
     }
   };
 
   const login = async () => {
     try {
-      // const response = await axios.post("http://localhost:5000/user/login", {
       const response = await axios.post(
-        "http://b3api-env.eba-8dhb66kv.eu-west-1.elasticbeanstalk.com/user/login",
+        "https://b3-api.bulutix.com/user/login",
+        // "http://localhost:5000/user/login",
         {
           accountId: "6420340315",
           username: "firdevs@entegreyazilim.com.tr",
           password: "14533541",
         });
-      console.log("response", response);
       setToken(response.data.token);
     } catch (err) {
       console.log(err);
     }
   };
   const uploadChunk = async (base64_) => {
-    console.log("base64", base64_);
     var sendString = base64_.split(",")[1];
-    console.log("sendString", sendString);
     try {
       const response = await axios.post(
+        "https://b3-api.bulutix.com/multipart/upload",
         // "http://localhost:5000/multipart/upload",
-        "http://b3api-env.eba-8dhb66kv.eu-west-1.elasticbeanstalk.com/multipart/upload",
         {
           AccountId: "6420340315",
           BucketName: "abdullah.example",
@@ -121,17 +125,13 @@ export default function Home() {
       );
       const data = response.data;
       if (data.isSuccess) {
-        console.log("data", data);
-        console.log("ETags1", ETags);
         var arr = [...ETags]; //copy array by value
-        console.log("arr1", arr);
         arr.push({ ETag: data.eTag, PartNumber: data.partNumber });
         setETags(arr);
-        console.log("arr2", arr);
-        console.log("ETags2", ETags);
 
         setBeginingOfTheChunk(endOfTheChunk);
         setEndOfTheChunk(endOfTheChunk + chunkSize);
+        console.log(`Chunk ${counter} bitti.`);
         if (counter === chunkCount) {
           console.log("Process is complete, counter", counter);
 
@@ -149,12 +149,11 @@ export default function Home() {
   };
 
   const uploadStarted = async (fileName_) => {
-    console.log("token", token);
     try {
       axios
         .post(
+          "https://b3-api.bulutix.com/multipart/initiate",
           // "http://localhost:5000/multipart/initiate",
-          "http://b3api-env.eba-8dhb66kv.eu-west-1.elasticbeanstalk.com/multipart/initiate",
           {
             AccountId: "6420340315",
             BucketName: "abdullah.example",
@@ -166,10 +165,10 @@ export default function Home() {
           }
         )
         .then((response) => {
-          console.log(response);
           const data = response.data;
           setUploadId(data.uploadId);
           if (data.isSuccess) {
+            console.log("Upload başladı.");
             setProgress(100);
           }
         });
@@ -179,13 +178,12 @@ export default function Home() {
   };
 
   const uploadCompleted = async (arr_) => {
-    console.log("eTags", ETags);
     var formData = new FormData();
     formData.append("fileName", fileGuid);
 
     const response = await axios.post(
+      "https://b3-api.bulutix.com/multipart/complete",
       // "http://localhost:5000/multipart/complete",
-      "http://b3api-env.eba-8dhb66kv.eu-west-1.elasticbeanstalk.com/multipart/complete",
       {
         AccountId: "6420340315",
         ObjectName: fileName,
@@ -200,7 +198,12 @@ export default function Home() {
 
     const data = response.data;
     if (data.isSuccess) {
+      //memmory free on browser
+      setFileToBeUpload(null);
+
+      console.log("Upload tamamlandı.");
       setProgress(100);
+
     }
   };
 
@@ -210,15 +213,44 @@ export default function Home() {
     setCounter(1);
     setBeginingOfTheChunk(0);
     setEndOfTheChunk(chunkSize);
-    console.log("endOfTheChunk", chunkSize);
   };
+
+  const getFile = async () => {
+    try {
+      axios
+        .post(
+          // "http://localhost:5000/bucket/abdullah.example/object/Adan Zye Angular 7 Kursu.rar",
+          "https://b3-api.bulutix.com/bucket/abdullah.example/object/Adan Zye Angular 7 Kursu.rar",
+          {
+            AccountId: "6420340315",
+          },
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        )
+        .then((response) => {
+          downloadBase64File(response.data.B3Object.Content, response.data.B3Object.ContentType, "Adan Zye Angular 7 Kursu.rar");
+        });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  function downloadBase64File(base64Data, contentType, filename) {
+    const linkSource = `data:${contentType};base64,${base64Data}`;
+    const downloadLink = document.createElement("a");
+    downloadLink.href = linkSource;
+    downloadLink.download = filename;
+    downloadLink.click();
+  }
+
   return (
     <div
       className="justify-content-center align-items-center"
     >
       <div style={{ width: '100%' }}>
         <form action="#" method="post">
-          <div className="form-group mt-3">
+          <div className="form-group mt-3">``
             <label className="mr-2">Upload File</label>
             <input name="file" type="file" onChange={getFileContext} />
           </div>
@@ -226,6 +258,11 @@ export default function Home() {
       </div>
       <div className="" style={{ width: '50%' }}>
         <SimpleProgressBar progress={progress} />
+      </div>
+      <div className="form-group mt-3">
+        <button type="button" className="btn btn-primary" onClick={getFile}>
+          Download
+        </button>
       </div>
     </div>
   );
