@@ -20,5 +20,6 @@ const SimpleProgressBar = ({ progress = 0 }: { progress?: number }) => {
     );
 };
 
+
 export default SimpleProgressBar;
 
