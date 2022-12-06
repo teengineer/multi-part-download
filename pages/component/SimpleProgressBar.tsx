@@ -7,7 +7,7 @@ const SimpleProgressBar = ({ progress = 0 }: { progress?: number }) => {
                     style={{
                         width: `${progress}%`,
                         height: "20px",
-                        backgroundColor: "#4caf50",
+                        backgroundColor: "#0DEF14",
                         border: "1px solid #4caf50",
                     }}
                     className=" top-0 bottom-0 left-0 h-full transition-all duration-150 bg-gray-600"
