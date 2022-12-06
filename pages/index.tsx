@@ -261,7 +261,7 @@ export default function Home() {
       </div>
       <div className="form-group mt-3">
         <button type="button" className="btn btn-primary" onClick={getFile}>
-          Download
+          İndir
         </button>
       </div>
     </div>
