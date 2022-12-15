@@ -1,5 +1,5 @@
 {
-  "name": "multi-part-upload-s3",
+  "name": "multi-part-download-client",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -13,6 +13,8 @@
     "atob": "^2.1.2",
     "axios": "^1.2.0",
     "bootstrap": "^5.2.3",
+    "boto3": "^0.0.1",
+    "js-file-download": "^0.4.12",
     "next": "13.0.6",
     "pretty-ms": "^8.0.0",
     "react": "18.2.0",
